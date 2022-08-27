@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import './pdfapi.dart';
 import './main.dart';
 import './button.dart';
+import 'downloadprovider.dart';
 
 class PdfPage extends StatefulWidget {
   @override
@@ -11,8 +13,12 @@ class PdfPage extends StatefulWidget {
 class _PdfPageState extends State<PdfPage> {
   static final String title = 'Generate PDF';
 
+
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) {
+    var fileDownloaderProvider =
+    Provider.of<FileDownloaderProvider>(context, listen: false);
+    return Scaffold(
         appBar: AppBar(
           title: Text(title),
           centerTitle: true,
@@ -33,11 +39,71 @@ class _PdfPageState extends State<PdfPage> {
                     PdfApi.openFile(pdfFile);
                   },
                 ),
+                dowloadButton(fileDownloaderProvider),
+                downloadProgress()
 
 
               ],
             ),
           ),
         ),
-      );
+      );}
+
+
+  Widget dowloadButton(FileDownloaderProvider downloaderProvider) {
+    return new FlatButton(
+      onPressed: () {
+        downloaderProvider
+            .downloadFile("URL", "My File.mp3")
+            .then((onValue) {});
+      },
+      textColor: Colors.black,
+      color: Colors.redAccent,
+      padding: const EdgeInsets.all(8.0),
+      child: new Text(
+        "Download File",
+      ),
+    );
+  }
+
+  Widget downloadProgress() {
+    var fileDownloaderProvider =
+    Provider.of<FileDownloaderProvider>(context, listen: true);
+
+    return new Text(
+      downloadStatus(fileDownloaderProvider),
+      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+    );
+  }
+
+  downloadStatus(FileDownloaderProvider fileDownloaderProvider) {
+    var retStatus = "";
+
+    switch (fileDownloaderProvider.downloadStatus) {
+      case DownloadStatus.Downloading:
+        {
+          retStatus = "Download Progress : " +
+              fileDownloaderProvider.downloadPercentage.toString() +
+              "%";
+        }
+        break;
+      case DownloadStatus.Completed:
+        {
+          retStatus = "Download Completed";
+        }
+        break;
+      case DownloadStatus.NotStarted:
+        {
+          retStatus = "Click Download Button";
+        }
+        break;
+      case DownloadStatus.Started:
+        {
+          retStatus = "Download Started";
+        }
+        break;
+    }
+
+    return retStatus;
+  }
 }

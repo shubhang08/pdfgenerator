@@ -30,6 +30,8 @@ class PdfApi {
     verbose: true,
     version: PdfVersion.pdf_1_4
     );
+    final imageJpg =
+    (await rootBundle.load('assets/person.jpg')).buffer.asUint8List();
 
     final headers = ['S.NO', 'DATE','DAY','SUBJECT'];
 
@@ -45,19 +47,22 @@ class PdfApi {
     ];
     final data = users.map((user) => [user.sno, user.date,user.day,user.Subject]).toList();
     
-    pdf.addPage(MultiPage(build: (context)=><Widget>[
+    pdf.addPage(MultiPage(
+        pageFormat: PdfPageFormat(20 * PdfPageFormat.cm, 25 * PdfPageFormat.cm,marginAll:0,marginTop: 0 ),
+        build: (context)=><Widget>[
       Container(
         width: double.infinity,
         padding: EdgeInsets.all(10),
-        margin: EdgeInsets.all(10),
+        //margin: EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: PdfColors.lightGreenAccent100
       ),
         child:
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
               Container(
-                  child:  PdfLogo(),
+                  child:  Image(MemoryImage(imageJpg)),
                   width: 80,
                   height: 80
               ),
@@ -86,7 +91,7 @@ class PdfApi {
         height: 40,
         width: double.infinity,
         padding: EdgeInsets.all(10),
-        margin: EdgeInsets.all(5),
+        //margin: EdgeInsets.all(5),
         child: Text('Half Yearly Examination Date Sheet class-1 A (2022-2023)', overflow: TextOverflow.visible, textAlign: TextAlign.center, style: TextStyle(
           fontSize: 16,
         )
@@ -99,7 +104,7 @@ class PdfApi {
       SizedBox(height: 15),
       Container(
         padding: EdgeInsets.all(10),
-        margin: EdgeInsets.all(5),
+        margin: EdgeInsets.all(15),
         child: Table.fromTextArray(
             headers: headers,
             data: data,
