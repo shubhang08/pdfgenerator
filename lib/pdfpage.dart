@@ -51,10 +51,10 @@ class _PdfPageState extends State<PdfPage> {
 
 
   Widget dowloadButton(FileDownloaderProvider downloaderProvider) {
-    return new FlatButton(
+    return FlatButton(
       onPressed: () {
         downloaderProvider
-            .downloadFile("URL", "My File.mp3")
+            .downloadFile("https://www.clickdimensions.com/links/TestPDFfile.pdf", "pdf.pdf")
             .then((onValue) {});
       },
       textColor: Colors.black,

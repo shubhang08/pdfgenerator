@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:open_file/open_file.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:path_provider/path_provider.dart';
@@ -28,11 +29,11 @@ class FileDownloaderProvider with ChangeNotifier {
       });
     } else {
       var httpClient = http.Client();
-      var request = new http.Request('GET', Uri.parse(url));
+      var request = http.Request('GET', Uri.parse(url));
       var response = httpClient.send(request);
 
       final dir = Platform.isAndroid
-          ? '/sdcard/download'
+          ? (await getApplicationDocumentsDirectory()).path
           : (await getApplicationDocumentsDirectory()).path;
 
       List<List<int>> chunks = [];
@@ -62,6 +63,7 @@ class FileDownloaderProvider with ChangeNotifier {
 
               _downloadedFile = '$dir/$filename';
               print(_downloadedFile);
+              OpenFile.open(_downloadedFile);
 
               final Uint8List bytes = Uint8List(r.contentLength!.toInt());
               int offset = 0;
@@ -96,14 +98,15 @@ class FileDownloaderProvider with ChangeNotifier {
   Future<bool> _checkPermission() async {
 
 
-    PermissionStatus permission = await PermissionHandler()
-        .checkPermissionStatus(PermissionGroup.storage);
+    PermissionStatus permission = await Permission.storage.request();
     if (permission != PermissionStatus.granted) {
-      Map<PermissionGroup, PermissionStatus> permissions =
-      await PermissionHandler()
-          .requestPermissions([PermissionGroup.storage]);
-      if (permissions[PermissionGroup.storage] == PermissionStatus.granted) {
-        return true;
+      Map<Permission, PermissionStatus> permissions =
+      await await [
+
+        Permission.storage,
+      ].request();
+      if (await Permission.storage.request().isGranted) {
+       return true;
       }
     } else {
       return true;
